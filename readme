@@ -3,3 +3,4 @@ usa le librerie Encoders e servo
 HW: Mega2560
 ROS: Kinetic
 rosserial:57600
+Debug: on Serial1 (Bluetooth attached)
