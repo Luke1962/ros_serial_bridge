@@ -13,6 +13,7 @@ interrupt pin MEGA: 2,3,  18,19,  20,21
 #include <ros/time.h>
 #include <geometry_msgs/Vector3Stamped.h>
 #include <std_msgs/Empty.h>
+#include <std_msgs/Bool.h>
 #include <std_msgs/Int16.h>	//rwheel (std_msgs/Int16)
 //#include <std_msgs/Int32.h>
 //#define ROSSERIAL_BAUD_RATE 115200
@@ -155,6 +156,36 @@ void cbkEncReset(const std_msgs::Empty &msg){
 ros::Subscriber<std_msgs::Empty> sub_encReset("encoders_reset", &cbkEncReset);
 
 
+///////////////////////////////////////////////////////////////////////
+///	FARETTO
+///////////////////////////////////////////////////////////////////////
+#define PIN_FARETTO 12
+#define FARETTO_ON digitalWrite(PIN_FARETTO, 1);
+#define FARETTO_OFF digitalWrite(PIN_FARETTO, 0);
+
+void cbkFarettoOnOff(const std_msgs::Bool &msg){
+	digitalWrite(PIN_FARETTO,msg.data);
+}
+ros::Subscriber<std_msgs::Bool> sub_faretto("faretto", &cbkFarettoOnOff);
+
+//-----------------------------------------------------------------------
+
+///////////////////////////////////////////////////////////////////////
+///	LASER
+///////////////////////////////////////////////////////////////////////
+#define PIN_LASER 11
+#define LASER_ON digitalWrite(PIN_LASER, 1);
+#define LASER_OFF digitalWrite(PIN_LASER, 0);
+
+void cbk_laser(const std_msgs::Bool &msg){
+	digitalWrite(PIN_LASER,msg.data);
+}
+ros::Subscriber<std_msgs::Bool> sub_laser("laser", &cbk_laser);
+
+//-----------------------------------------------------------------------
+
+
+
 #ifdef SERVO
 	std_msgs::Int16 msg_raspicam_servo_position;
 	ros::Publisher pub_raspicamservo("/raspicam_servo_position", &msg_raspicam_servo_position);
@@ -189,11 +220,14 @@ inline void setup_ros(){
 	nh.advertise(pub_raspicamservo);
 	nh.subscribe(sub_encReset);	
 	nh.subscribe(sub_servo);  
+	nh.subscribe(sub_faretto);
+	nh.subscribe(sub_laser);
 	
 	while(!nh.connected()) nh.spinOnce();
   	nh.loginfo("Startup complete");
 	DBG.println("CONNESSO");
 	int DELAY_DEFAULT = 3;
+	/* 	
 	if (! nh.getParam("~delay", &delayBetweenLoops_ms, &DELAY_DEFAULT,1)){ 
     	//default values
     	delayBetweenLoops_ms= 30;
@@ -202,7 +236,18 @@ inline void setup_ros(){
 	{
 		dbg2("Parameter: delayBetweenLoops_ms=",delayBetweenLoops_ms);
 	}
-	
+	 */
+
+	// Get delay parameter------------------
+	bool param_success = false;
+	dbg("loading param. ~delay...");
+	while (!param_success)
+	{
+		param_success = nh.getParam("~delay", (int*)&delayBetweenLoops_ms, 1);
+		nh.spinOnce();
+		delay(10);
+	}
+	dbg2("...ok delay=",delayBetweenLoops_ms);
 
 
 }
@@ -214,6 +259,12 @@ void setup()
 	DBG.println("\n-----ROS Encoder node start-------");
 	dbg2("Baud rate:", ROSSERIAL_BAUD_RATE);
 
+	// pilotaggio faretto
+	pinMode(PIN_FARETTO ,OUTPUT);
+	FARETTO_OFF;
+	// Pilotaggio LASER
+	pinMode(PIN_LASER ,OUTPUT);
+	LASER_OFF;
 
 	LED_ON;
 	setup_ros();
