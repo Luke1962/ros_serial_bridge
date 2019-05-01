@@ -4,7 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "/home/luca/.arduino15/packages/arduino/tools/**",
-                "/home/luca/.arduino15/packages/arduino/hardware/avr/1.6.21/**"
+                "/home/luca/.arduino15/packages/arduino/hardware/avr/1.6.21/**",
+				"/home/luca/sw/Arduino/libraries/**",
+				"/home/luca/sw/Arduino/libraries/ros_lib/**"				
             ],
             "forcedInclude": [
                 "/home/luca/.arduino15/packages/arduino/hardware/avr/1.6.21/cores/arduino/Arduino.h"
