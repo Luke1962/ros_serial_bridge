@@ -1,1 +1,5 @@
 sorgente nodo ROS per lettura encoders e la gestione servo del mio robot 
+usa le librerie Encoders e servo
+HW: Mega2560
+ROS: Kinetic
+rosserial:57600
